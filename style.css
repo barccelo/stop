@@ -3,3 +3,12 @@
 .stopheading{font-size:64px;letter-spacing:-3px;margin:12px 0 36px}.writingtools{display:flex;flex:none;align-items:center;justify-content:space-between;gap:16px;padding:6px 16px 10px;background:white}.writingedits{display:flex;gap:8px}.writingedits .icon{color:#626269}.writenext{display:flex;gap:8px;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;background:#007aff;color:white;font-size:14px}.writenext svg{width:18px;height:18px;margin:0}@media(orientation:landscape) and (max-height:540px){.writingtools{padding:2px 16px 6px}}
 .presetgroups{display:grid;gap:12px}.presetgroup{border:1px solid #e5e5ea;border-radius:16px;background:white;overflow:hidden}.presetgroup summary{display:flex;align-items:center;gap:12px;cursor:pointer;list-style:none;padding:16px;font-size:17px;font-weight:600;min-height:64px}.presetgroup summary::-webkit-details-marker{display:none}.presetgroup summary small{display:block;font-size:12px;font-weight:400;color:#86868b;margin-top:3px}.presetgroup summary::after{content:'';width:7px;height:7px;border-right:1.5px solid #86868b;border-bottom:1.5px solid #86868b;transform:rotate(45deg);margin:0 3px 4px 0}.presetgroup[open] summary::after{transform:rotate(225deg);margin-bottom:0}.presetgroup summary:focus-visible{outline:3px solid #89bcff;outline-offset:-3px}.groupcount{margin-left:auto;font-size:12px;font-weight:500;color:#86868b}.groupbody{padding:0 14px 16px}.groupbody .chip{font-size:13px;padding:9px 11px}.usegroup{color:#007aff;font-size:13px;padding:6px 0;margin-bottom:8px;min-height:36px}.groupbody .chips{gap:7px}
 .letterheading{text-align:center}.empty-stop{display:block;width:100%;color:#86868b;font-size:13px;margin-top:6px}
+
+/* Puntuación rápida en General: ocupa la franja bajo cada respuesta, sin alterar la vista Individual. */
+.overview{min-height:0}
+.overview .quickcell{display:flex;flex-direction:column;align-items:stretch;width:100%}
+.overview .quickscore{display:flex;gap:4px;padding:0 7px 9px}
+.overview .quickscore button{flex:1;min-width:0;min-height:32px;height:32px;border:1px solid #e5e5ea;border-radius:9px;background:#f5f5f7;padding:0;font-size:12px;font-weight:650;font-variant-numeric:tabular-nums}
+.overview .quickscore button.selected{background:#e8f2ff;border-color:#007aff;color:#007aff}
+.overview .quickscore button:not(.selected):hover{background:#edf5ff}
+@media(orientation:landscape) and (max-height:540px){.overview .quickscore button{min-height:29px;height:29px}.overview .quickscore{padding-bottom:6px}}
