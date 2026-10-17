@@ -69,6 +69,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 function show(view){state.view=view;['setup','letter','play','review'].forEach(function(v){id(v).classList.toggle('hidden',view!==v);});save();if(view==='setup')renderSetup();if(view==='letter'){id('letterInput').value='';setTimeout(function(){id('letterInput').focus();},50);}if(view==='play')renderGame();if(view==='review')renderReview();}
 function applyTheme(){document.documentElement.dataset.theme=state.theme;document.querySelector('meta[name="theme-color"]').content=state.theme==='dark'?'#121417':'#f7f8fb';}
 function renderSetup(){
+ var expanded=Array.prototype.map.call(document.querySelectorAll('#groups details[open] .group-title'),function(x){return x.textContent;});
  id('selectedCount').textContent=state.selected.length+' seleccionadas';
  var groups='';
  ['Normal','Alizabeth'].forEach(function(name){
@@ -78,6 +79,8 @@ function renderSetup(){
   groups+='</div></div></details>';
  });
  id('groups').innerHTML=groups;
+ Array.prototype.forEach.call(document.querySelectorAll('#groups details'),function(x){if(expanded.indexOf(x.querySelector('.group-title').textContent)!==-1)x.open=true;});
+ var row=document.querySelector('.continue-row');var prev=row.querySelector('[data-action="resume"]');if(prev)prev.remove();if(state.game){row.insertAdjacentHTML('afterbegin','<button class="secondary" data-action="resume">Continuar escritura</button>');}
  id('picked').innerHTML=state.selected.map(function(n,j){return '<div class="picked"><span class="number">'+(j+1)+'</span><input data-selected-index="'+j+'" aria-label="Nombre de categoría '+(j+1)+'" value="'+escapeHTML(n)+'"><button class="mini" data-action="move-up" data-index="'+j+'" title="Subir" aria-label="Subir">↑</button><button class="mini" data-action="move-down" data-index="'+j+'" title="Bajar" aria-label="Bajar">↓</button><button class="mini danger" data-action="remove" data-index="'+j+'" title="Quitar" aria-label="Quitar '+escapeHTML(n)+'">×</button></div>';}).join('')||'<div class="empty">Sin categorías</div>';
 }
 function currentAnswer(){return state.game.answers[state.game.index];}
@@ -118,7 +121,7 @@ function stopGame(){
  var r={letter:g.letter,categories:g.categories.slice(),answers:JSON.parse(JSON.stringify(g.answers)),scores:Array.isArray(g.scores)?g.scores.slice():g.categories.map(function(){return 0;})};
  if(Number.isInteger(g.editRound)&&g.editRound>=0&&g.editRound<state.rounds.length)state.rounds[g.editRound]=r;
  else state.rounds.push(r);
- state.game.editRound=state.rounds.length-1;state.reviewCell=Math.max(0,reviewCells().length-g.categories.length);
+ state.game.editRound=Number.isInteger(g.editRound)&&g.editRound>=0?g.editRound:state.rounds.length-1;state.reviewCell=reviewCells().findIndex(function(c){return c.r===state.game.editRound;});
  state.reviewMode='table';show('review');
 }
 function reviewCells(){var out=[];state.rounds.forEach(function(r,i){r.categories.forEach(function(c,j){out.push({r:i,a:j});});});return out;}
@@ -176,7 +179,8 @@ document.addEventListener('click',function(e){
  if(a==='use-group'){var n=b.dataset.group;state.activeGroup=n;state.groupSelection[n]=state.groups[n].slice();state.selected=state.groups[n].slice();save();renderSetup();return;}
  if(a==='remove'){state.selected.splice(Number(b.dataset.index),1);save();renderSetup();return;}
  if(a==='move-up'||a==='move-down'){var k=Number(b.dataset.index),next=k+(a==='move-up'?-1:1);if(next>=0&&next<state.selected.length){var tmp=state.selected[k];state.selected[k]=state.selected[next];state.selected[next]=tmp;save();renderSetup();}return;}
- if(a==='add-category'){var inp=id('newCategory'),v=inp.value.trim();if(v&&!state.selected.some(function(n){return n.toLowerCase()===v.toLowerCase();})){state.selected.push(v);save();renderSetup();}else if(v){inp.value='';}return;}
+ if(a==='add-category'){var inp=id('newCategory'),v=inp.value.trim();if(v&&!state.selected.some(function(n){return n.toLowerCase()===v.toLowerCase();})){state.selected.push(v);inp.value='';save();renderSetup();}else if(v){inp.value='';}return;}
+ if(a==='resume'){if(state.game)show('play');return;}
  if(a==='continue'){if(!state.selected.some(function(s){return s.trim();})){alert('Selecciona una categoría.');return;}show('letter');return;}
  if(a==='setup'){show('setup');return;}
  if(a==='start'){var letter=id('letterInput').value.trim().toUpperCase();if(!letter){id('letterInput').focus();return;}startRound(letter);return;}
@@ -201,7 +205,7 @@ document.addEventListener('click',function(e){
  if(a==='cell'){var cells=reviewCells();state.reviewCell=cells.findIndex(function(c){return c.r===Number(b.dataset.r)&&c.a===Number(b.dataset.a);});state.reviewMode='single';save();renderReview();return;}
  if(a==='review-prev'||a==='review-next'){state.reviewMode='single';state.reviewCell=Math.max(0,Math.min(reviewCells().length-1,state.reviewCell+(a==='review-prev'?-1:1)));save();renderReview();return;}
  if(a==='score'){setScore(b.dataset.score);return;}
- if(a==='edit-round'){if(state.rounds.length){var r=state.rounds[state.rounds.length-1];state.game={letter:r.letter,categories:r.categories.slice(),answers:JSON.parse(JSON.stringify(r.answers)),scores:r.scores.slice(),index:0,editRound:state.rounds.length-1};state.allowBlanks=true;show('play');}else show('setup');return;}
+ if(a==='edit-round'){if(state.rounds.length){var ri=state.reviewMode==='single'?reviewCells()[state.reviewCell].r:state.rounds.length-1,r=state.rounds[ri];state.game={letter:r.letter,categories:r.categories.slice(),answers:JSON.parse(JSON.stringify(r.answers)),scores:r.scores.slice(),index:0,editRound:ri};state.allowBlanks=true;show('play');}else show('setup');return;}
  if(a==='new-round'){show('letter');return;}
 });
 var canvas=id('ink');
